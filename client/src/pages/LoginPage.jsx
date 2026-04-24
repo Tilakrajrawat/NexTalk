@@ -1,102 +1,177 @@
-import React from "react";
-import { useState } from "react";
-import assets from "../assets/assets";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { AlertCircle, ArrowRight, Mail, Lock } from "lucide-react";
 
-const LoginPage = () => {
-  const [currState, setCurrState] = useState("Sign up");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [bio, setBio] = useState("");
-  const [isDataSubmitted, setIsDataSubmitted] = useState(false);
+import AuthLayout from "../layouts/AuthLayout";
+import GlassCard from "../components/ui/GlassCard";
+import GlassButton from "../components/ui/GlassButton";
+import GlassInput from "../components/ui/GlassInput";
+import { useAuth } from "../context/AuthContext";
+import api from "../lib/api";
 
-  const onSubmitHandler = (e) => {
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login, isAuthenticated } = useAuth();
+
+  const from = useMemo(() => location.state?.from?.pathname || "/", [location.state]);
+
+  const [form, setForm] = useState({
+    email: "",
+    password: ""
+  });
+
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleChange = (field) => (e) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: e.target.value
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [field]: ""
+    }));
+
+    setServerError("");
+  };
+
+  const validate = () => {
+    const nextErrors = {};
+
+    if (!form.email.trim()) {
+      nextErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(form.email.trim())) {
+      nextErrors.email = "Enter a valid email";
+    }
+
+    if (!form.password.trim()) {
+      nextErrors.password = "Password is required";
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (currState === "Sign up"&&!isDataSubmitted) {
-     setIsDataSubmitted(true);
-     return;
-    } 
-  }
-  
+
+    if (!validate()) return;
+
+    setSubmitting(true);
+    setServerError("");
+
+    try {
+      const response = await api.post("/auth/login", {
+        email: form.email.trim(),
+        password: form.password
+      });
+
+      const payload = response.data?.data;
+
+      if (!payload?.token || !payload?.user) {
+        throw new Error("Invalid login response");
+      }
+
+      login({
+        token: payload.token,
+        user: payload.user
+      });
+
+      navigate(from, { replace: true });
+    } catch (error) {
+      setServerError(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Unable to sign in right now. Please try again."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-center flex items-center justify-center gap-8 sm:justify-evenly max-sm:flex-col backdrop-blur-3xl">
-      {/* Background image for left side */}
-      <img src={assets.logo_big} alt="" className="w-[min(30vw,250px)]" />
-      {/* Login form container */}
-      <form
-        onSubmit={onSubmitHandler}
-        className="border-2 bg-white/8 text-white border-gray-500 p-6 flex flex-col gap-6 rounded-lg shadow-lg"
-      >
-        <h2 className="font-medium text-2xl flex justify-between items-center">
-          {currState}
-          {isDataSubmitted&& <img onClick={()=>{setIsDataSubmitted(false)}}src={assets.arrow_icon} alt="" className="w-5 cursor-pointer" />}
-         
-        </h2>
-        {currState === "Sign up" && !isDataSubmitted && (
-          <input
-            onChange={(e) => setFullName(e.target.value)}
-            value={fullName}
-            type="text"
-            className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Full Name"
-            required
-          />
-        )}
-        {!isDataSubmitted && (
-          <>
-            <input
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-              type="email"
-              placeholder="Email Address"
-              required
-              className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <input
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-              type="password"
-              placeholder="Password"
-              required
-              className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </>
-        )}
-        {currState === "Sign up" && isDataSubmitted && (
-          <textarea
-            onChange={(e) => setBio(e.target.value)}
-            value={bio}
-            rows={4}
-            className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Provide a short bio about yourself"
-            required
-          ></textarea>
-        )}
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Sign in to access your premium realtime messaging workspace."
+    >
+      <GlassCard className="p-6 sm:p-7">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1">
+            <h3 className="text-lg font-semibold text-white">Sign in to NexTalk</h3>
+            <p className="text-sm text-white/45">
+              Secure access, instant sync, and realtime conversations.
+            </p>
+          </div>
 
-        <button type="submit"
-        className="py-3 bg-gradient-to-r from purple-400 to-violet-600 text-white rounded-md cursor-pointer">
-          {currState === "Sign up" ? "Create Account" : "Login Now"}
-        </button>
+          {serverError ? (
+            <div className="flex items-start gap-3 rounded-2xl border border-red-400/15 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{serverError}</span>
+            </div>
+          ) : null}
 
-        <div className="flex items-center gap-2 text-sm text-gray-500"> 
-          <input type="checkbox" required/>
-          <p>Agree to terms of use & privacy policy.</p>
-        </div>
+          <div className="space-y-2">
+            <label className="text-xs font-medium uppercase tracking-[0.14em] text-white/35">
+              Email
+            </label>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+              <GlassInput
+                type="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={handleChange("email")}
+                className="pl-11"
+                autoComplete="email"
+              />
+            </div>
+            {errors.email ? <p className="text-xs text-red-300">{errors.email}</p> : null}
+          </div>
 
-        <div className="flex flex-col gap-2">
-        {currState === "Sign up" ? (
-          <p className="text-sm text-gray-600"> Already have an account ?<span className="font-medium text-violet-500 cursor-pointer"
-          onClick={()=>{setCurrState("Login"),setIsDataSubmitted(false)}} >Login here</span></p>
-        ):( 
-          <p className="text-sm text-gray-600 ">Create an account <span className="font-medium text-violet-500 cursor-pointer" 
-          onClick={()=>{setCurrState("Sign up"),setIsDataSubmitted(false)}} 
-          >Click here</span></p>
-        ) }
+          <div className="space-y-2">
+            <label className="text-xs font-medium uppercase tracking-[0.14em] text-white/35">
+              Password
+            </label>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+              <GlassInput
+                type="password"
+                placeholder="Enter your password"
+                value={form.password}
+                onChange={handleChange("password")}
+                className="pl-11"
+                autoComplete="current-password"
+              />
+            </div>
+            {errors.password ? <p className="text-xs text-red-300">{errors.password}</p> : null}
+          </div>
 
-        </div>
-      </form>
-    </div>
+          <GlassButton type="submit" loading={submitting}>
+            <span>Sign In</span>
+            {!submitting ? <ArrowRight className="h-4 w-4" /> : null}
+          </GlassButton>
+
+          <div className="flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-3">
+            <span className="text-xs text-white/40">Need an account?</span>
+            <Link
+              to="/register"
+              className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+            >
+              Create one
+            </Link>
+          </div>
+        </form>
+      </GlassCard>
+    </AuthLayout>
   );
-};
-
-export default LoginPage;
+}

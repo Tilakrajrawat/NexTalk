@@ -1,21 +1,23 @@
-import React from 'react'
-import { Route, Routes } from 'react-router-dom'
-import HomePage from './pages/HomePage.jsx'
-import LoginPage from './pages/LoginPage.jsx'
-import ProfilePage from './pages/ProfilePage.jsx'
+import { Navigate, Route, Routes } from "react-router-dom";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import PublicRoute from "./routes/PublicRoute";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import DashboardPage from "./pages/DashboardPage";
 
-const App = () => {
+export default function App() {
   return (
-    <div className="bg-[url('./assets/bgImage.svg')]
-    bg-contain">
-      <Routes>
-        <Route path="/" element={<HomePage/>} />
-        <Route path="/login" element={<LoginPage/>} />
-        <Route path="/profile" element={<ProfilePage/>} />
-       
-      </Routes>
-    </div>
-  )
-}
+    <Routes>
+      <Route element={<PublicRoute />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Route>
 
-export default App
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<DashboardPage />} />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}

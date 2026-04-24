@@ -1,180 +1,454 @@
-# 💬 NexTalk — Real-Time Messaging Platform
+# 💬 NexTalk — Premium Real-Time Chat Platform
 
-NexTalk is a MERN-style chat platform with:
-- a React frontend (`client/`) for chat UI flows,
-- a Node.js + Express + Socket.IO backend (`backend/`) for auth, messaging, rooms, presence, typing, and file upload.
+NexTalk is a **full-stack real-time messaging platform** built with a modern React + Node.js architecture and a premium dark glass UI.
 
----
-
-## ✅ Feature Audit Result
-
-All features listed below are now implemented in the codebase.
-
-### 🔐 JWT authentication
-- Register, login, and `me` endpoints are implemented.
-- Passwords are hashed with bcrypt.
-- Protected routes are enforced via JWT middleware.
-
-### 💬 Private 1-on-1 messaging
-- DM history endpoint exists.
-- Direct messages can be sent through REST and Socket.IO.
-
-### 👥 Multi-user chat rooms
-- Create room, join room, leave room endpoints exist.
-- Room message history endpoint validates membership.
-
-### 🧭 Socket.IO room-based event routing
-- `join_room` / `leave_room` map users to Socket.IO rooms.
-- Room messages are emitted only to relevant room channels.
-
-### 🟢 Live presence indicators
-- Users are marked online on socket connect and offline on disconnect.
-- Presence events are broadcast with `user_online` / `user_offline`.
-
-### ⌨️ Typing events
-- `typing_start` and `typing_stop` are handled for both DMs and rooms.
-- Server emits `typing` and `stop_typing` to target participants.
-
-### 📎 File and image sharing (Multer)
-- `POST /api/messages/upload` accepts files.
-- File type + max size validation is enforced.
-- Upload metadata can be attached to messages.
-
-### 🔍 User search with real-time results
-- `GET /api/users/search?q=` supports partial match on username/email.
-- Response includes presence fields (`isOnline`, `lastSeen`) for live UI usage.
-
-### 🗄️ MongoDB indexes
-- Messages indexed on `{ room, createdAt }`.
-- Messages indexed on `{ sender, receiver }`.
-
-### ⚡ Socket.IO events covered
-- Client → Server: `join_room`, `leave_room`, `send_message`, `typing_start`, `typing_stop`
-- Server → Client: `receive_message`, `user_online`, `user_offline`, `typing`, `stop_typing`
+It supports **JWT authentication**, **private 1-to-1 messaging**, **multi-user chat rooms**, **real-time Socket.IO delivery**, **typing indicators**, **live presence**, **file/image sharing**, **profile management**, and **room member administration**.
 
 ---
 
-## 🏗️ Architecture
+## ✨ Highlights
 
-- **Client**: React + Vite + Tailwind UI and chat screens.
-- **Backend API**: Express REST endpoints for auth, users, rooms, and messages.
-- **Realtime Layer**: Socket.IO with JWT-authenticated sockets and room/personal channels.
-- **Database**: MongoDB (Mongoose models: User, Room, Message).
-- **File Storage**: Local disk uploads served from `/uploads`.
+- 🔐 JWT auth with persistent sessions
+- 💬 Real-time direct messaging
+- 👥 Multi-user chat rooms
+- ⚡ Socket.IO powered live delivery
+- ⌨️ Typing indicators for DMs and rooms
+- 🟢 Presence + last seen tracking
+- 📎 Image & file uploads with preview support
+- 🧑 Profile settings (name, username, bio, avatar)
+- 🛠️ Room management (edit room, add/remove members, delete/leave room)
+- 🎨 Premium futuristic dark “black mirror” UI
+
+---
+
+## 🖼️ Screenshots
+
+### Login Page
+![Login Page](./docs/login-page.png)
+
+### Register Page
+![Register Page](./docs/register-page.png)
+
+### Main Dashboard
+![Dashboard Main](./docs/dashboard-main.png)
+
+### Sidebar Navigation & User Discovery
+![Dashboard Sidebar](./docs/dashboard-sidebar.png)
+
+### Active Chat Interface
+![Chat Interface](./docs/chat-interface.png)
+
+### Room Info Panel
+![Room Info Panel](./docs/room-info-panel.png)
+
+### Room Settings & Member Management
+![Room Settings Management](./docs/room-settings-management.png)
+
+### Sidebar Profile Header
+![Sidebar Profile Header](./docs/sidebar-profile-header.png)
+
+---
+
+## 🚀 Features
+
+### 🔐 Authentication
+- User registration
+- User login
+- JWT-based protected routes
+- Persistent auth state on refresh
+- Current user endpoint (`/api/auth/me`)
+
+### 💬 Direct Messaging
+- Private 1-to-1 conversations
+- Message history loading
+- Real-time delivery with Socket.IO
+- Typing indicators
+- File/image attachments
+
+### 👥 Rooms / Group Chat
+- Create rooms
+- Join rooms
+- Leave rooms
+- View room message history
+- Room membership validation
+- Edit room details (creator only)
+- Add members to existing rooms
+- Remove members from rooms
+- Delete room (creator only)
+
+### 🧑 Profile & Account
+- View current profile
+- Update name
+- Update username
+- Update bio
+- Upload/change avatar
+- Delete account
+
+### 📎 File Sharing
+- Upload images and documents
+- File type validation
+- Max file size validation
+- File previews in chat UI
+- Static serving from `/uploads`
+
+### 🟢 Presence & Realtime UX
+- Online / offline status
+- Last seen timestamps
+- Typing indicators for DMs and rooms
+- Real-time room update sync events
+
+---
+
+## 🏗️ Tech Stack
+
+### Frontend (`client/`)
+- React + Vite
+- Tailwind CSS
+- React Router DOM
+- Axios
+- Socket.IO Client
+- Lucide React
+
+### Backend (`backend/`)
+- Node.js
+- Express
+- Socket.IO
+- MongoDB + Mongoose
+- JWT
+- bcrypt
+- Multer
+- Helmet
+- Morgan
+- CORS
 
 ---
 
 ## 📂 Project Structure
 
-```
+```bash
 NexTalk/
 ├── backend/
 │   ├── src/
 │   │   ├── config/
-│   │   │   ├── db.js
-│   │   │   └── multer.js
+│   │   │   └── db.js
 │   │   ├── controllers/
-│   │   │   ├── authController.js
-│   │   │   ├── messageController.js
-│   │   │   ├── roomController.js
-│   │   │   └── userController.js
+│   │   │   ├── auth.controller.js
+│   │   │   ├── message.controller.js
+│   │   │   ├── room.controller.js
+│   │   │   ├── upload.controller.js
+│   │   │   └── user.controller.js
 │   │   ├── middleware/
-│   │   │   ├── authMiddleware.js
-│   │   │   └── errorHandler.js
+│   │   │   ├── asyncHandler.js
+│   │   │   ├── auth.middleware.js
+│   │   │   ├── error.middleware.js
+│   │   │   └── notFound.middleware.js
 │   │   ├── models/
 │   │   │   ├── Message.js
 │   │   │   ├── Room.js
 │   │   │   └── User.js
 │   │   ├── routes/
-│   │   │   ├── authRoutes.js
-│   │   │   ├── messageRoutes.js
-│   │   │   ├── roomRoutes.js
-│   │   │   └── userRoutes.js
+│   │   │   ├── auth.routes.js
+│   │   │   ├── message.routes.js
+│   │   │   ├── room.routes.js
+│   │   │   ├── upload.routes.js
+│   │   │   └── user.routes.js
 │   │   ├── socket/
-│   │   │   └── socketHandler.js
-│   │   ├── uploads/
-│   │   └── server.js
-│   ├── .env.example
-│   └── package.json
-└── client/
-    └── src/
-```
+│   │   │   ├── authSocket.js
+│   │   │   ├── events.js
+│   │   │   ├── index.js
+│   │   │   └── presence.js
+│   │   ├── utils/
+│   │   ├── validators/
+│   │   └── app.js
+│   ├── uploads/
+│   ├── .env
+│   ├── package.json
+│   └── server.js
+│
+├── client/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── hooks/
+│   │   ├── layouts/
+│   │   ├── lib/
+│   │   ├── pages/
+│   │   ├── routes/
+│   │   └── styles/
+│   ├── .env
+│   ├── package.json
+│   └── vite.config.js
+│
+├── docs/
+│   ├── chat-interface.png
+│   ├── dashboard-main.png
+│   ├── dashboard-sidebar.png
+│   ├── login-page.png
+│   ├── register-page.png
+│   ├── room-info-panel.png
+│   ├── room-settings-management.png
+│   └── sidebar-profile-header.png
+│
+└── README.md
 
----
+⚙️ Environment Variables
 
-## 🚀 Getting Started
+Important: Never commit real secrets to GitHub.
+Replace your current .env values with your own secure values before pushing publicly.
 
-### 1) Backend
-```bash
+Backend — backend/.env
+
+PORT=5000
+NODE_ENV=development
+
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secure_random_jwt_secret
+JWT_EXPIRES_IN=7d
+
+CLIENT_URL=http://localhost:5173
+
+MAX_FILE_SIZE_MB=10
+UPLOAD_DIR=uploads
+
+Frontend — client/.env
+
+VITE_API_URL=http://localhost:5000/api
+VITE_SERVER_URL=http://localhost:5000
+
+🧪 Local Setup
+1) Clone the repository
+git clone https://github.com/your-username/NexTalk.git
+cd NexTalk
+
+2) Setup backend
 cd backend
-cp .env.example .env
 npm install
+
+Create backend/.env:
+
+PORT=5000
+NODE_ENV=development
+
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secure_random_jwt_secret
+JWT_EXPIRES_IN=7d
+
+CLIENT_URL=http://localhost:5173
+
+MAX_FILE_SIZE_MB=10
+UPLOAD_DIR=uploads
+
+Run backend:
+
 npm run dev
-```
 
-Backend default URL: `http://localhost:5000`
+Backend runs on:
 
-### 2) Client
-```bash
-cd client
+http://localhost:5000
+3) Setup frontend
+cd ../client
 npm install
+
+Create client/.env:
+
+VITE_API_URL=http://localhost:5000/api
+VITE_SERVER_URL=http://localhost:5000
+
+Run frontend:
+
 npm run dev
-```
 
-Client default URL: `http://localhost:5173`
+Frontend runs on:
 
----
+http://localhost:5173
 
-## 📡 API Endpoints
 
-### Auth
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/auth/me` (JWT required)
+📡 REST API Overview
 
-### Messages
-- `GET /api/messages/:roomId` (JWT required)
-- `GET /api/messages/dm/:userId` (JWT required)
-- `POST /api/messages` (JWT required)
-- `POST /api/messages/upload` (JWT required)
+Auth
 
-### Rooms
-- `GET /api/rooms` (JWT required)
-- `POST /api/rooms` (JWT required)
-- `POST /api/rooms/:id/join` (JWT required)
-- `POST /api/rooms/:id/leave` (JWT required)
+POST /api/auth/register
+POST /api/auth/login
+GET /api/auth/me
 
-### Users
-- `GET /api/users/search?q=` (JWT required)
-- `GET /api/users/:id` (JWT required)
+Users
 
-### Utility
-- `GET /api/health`
+GET /api/users?q=&limit=20
+GET /api/users/me/profile
+PATCH /api/users/me/profile
+PATCH /api/users/me/avatar
+DELETE /api/users/me
 
----
+Rooms
 
-## 🔌 Socket.IO Events
+GET /api/rooms
+POST /api/rooms
+POST /api/rooms/:roomId/join
+POST /api/rooms/:roomId/leave
+PATCH /api/rooms/:roomId
+POST /api/rooms/:roomId/members
+DELETE /api/rooms/:roomId/members/:memberId
+DELETE /api/rooms/:roomId
 
-### Client → Server
-- `join_room` (`roomId`)
-- `leave_room` (`roomId`)
-- `send_message` (`{ content, roomId?, receiverId?, fileUrl?, fileType? }`)
-- `typing_start` (`{ roomId?, receiverId? }`)
-- `typing_stop` (`{ roomId?, receiverId? }`)
+Messages
 
-### Server → Client
-- `receive_message` (message object)
-- `user_online` (`userId`)
-- `user_offline` (`userId`)
-- `typing` (`{ userId, roomId?, receiverId? }`)
-- `stop_typing` (`{ userId, roomId?, receiverId? }`)
+GET /api/messages/threads
+GET /api/messages/dm/:userId
+GET /api/messages/room/:roomId
 
----
+Upload
 
-## 🧰 Tech Stack
+POST /api/upload
+Health Check
+GET /api/health
 
-- React + Vite + Tailwind CSS
-- Node.js + Express + Socket.IO
-- MongoDB + Mongoose
-- JWT + bcrypt
-- Multer
+Health Check
+
+GET /api/health
+
+🔌 Socket.IO Events
+
+Client → Server
+
+room:join
+room:leave
+dm:send
+room:send
+dm:typing
+room:typing
+
+Server → Client
+
+server:ready
+dm:new
+room:new
+dm:typing
+room:typing
+presence:update
+presence:sync
+room:updated
+socket:error
+
+🧠 Data Models
+
+User
+name
+username
+email
+password
+bio
+avatar
+isOnline
+lastSeen
+Room
+name
+description
+members
+createdBy
+Message
+sender
+receiver (for DMs)
+room (for room messages)
+content
+fileUrl
+fileType
+createdAt
+updatedAt
+
+🎨 UI / Design System
+
+NexTalk uses a custom premium dark glassmorphism design language inspired by futuristic AI dashboards:
+
+Deep black / charcoal surfaces
+Glassy layered panels
+Cyan neon accent glow
+Soft borders and subtle reflections
+Rounded 2xl/3xl cards
+Premium dark inputs and buttons
+Responsive chat layout with sidebar + main panel + info panel
+
+Reusable UI building blocks include:
+
+GlassCard
+GlassInput
+GlassButton
+UserAvatar
+StatusBadge
+ChatHeader
+Composer
+MessageBubble
+TypingIndicator
+ProfileSettingsModal
+RoomSettingsModal
+
+🔒 Security & Validation
+
+Passwords hashed using bcrypt
+JWT-protected REST endpoints
+JWT-authenticated Socket.IO connections
+Room membership checks for room history and room messaging
+Creator-only room edit / member management / delete controls
+File type validation for uploads
+File size limits enforced with Multer
+Error middleware + not found middleware for consistent API responses
+
+🛠️ Future Improvements
+
+Possible next upgrades:
+
+Message read receipts
+Delivered / seen indicators
+Emoji picker
+Message reactions
+Edit / delete messages
+Cloud storage (Cloudinary / S3) instead of local uploads
+Notifications / sound alerts
+Unread badge counts
+Infinite scroll pagination
+Typing participant names in rooms
+Docker + CI/CD deployment
+🌍 Deployment Recommendation
+
+Recommended production stack:
+
+Frontend: Vercel
+Backend: Render or Railway
+Database: MongoDB Atlas
+Production env example
+Backend
+PORT=5000
+NODE_ENV=production
+MONGO_URI=your_mongodb_atlas_uri
+JWT_SECRET=your_secure_random_jwt_secret
+JWT_EXPIRES_IN=7d
+CLIENT_URL=https://your-frontend-domain.vercel.app
+MAX_FILE_SIZE_MB=10
+UPLOAD_DIR=uploads
+Frontend
+VITE_API_URL=https://your-backend-domain.onrender.com/api
+VITE_SERVER_URL=https://your-backend-domain.onrender.com
+📌 Notes
+Uploaded files are currently stored on local disk (/uploads) and served statically.
+For production-scale deployment, migrating uploads to Cloudinary or AWS S3 is recommended.
+If deploying publicly, make sure to:
+remove real secrets from .env
+add .env to .gitignore
+rotate any exposed credentials if they were ever committed
+
+## 👨‍💻 Author
+
+**Tilak Raj Rawat**  
+GitHub: [## 👨‍💻 Author
+
+**Tilak Raj Rawat**  
+GitHub: [github.com/Tilakrajrawat](https://github.com/Tilakrajrawat)]
+LinkedIn: [linkedin.com/in/tilakrajrawat142](https://linkedin.com/in/tilakrajrawat142)
+📜 License
+
+This project is licensed under the MIT License.
+
+⭐ If you like this project
+
+If this project helped or inspired you, consider starring the repository.
+
+

@@ -1,11 +1,92 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@import "tailwindcss";
-
-*{
-  font-family: "Outfit", sans-serif;
+:root {
+  color-scheme: dark;
 }
 
-::-webkit-scrollbar{
-display: none;
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(0, 200, 240, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 15%, rgba(56, 221, 248, 0.06), transparent 20%),
+    linear-gradient(180deg, #05070a 0%, #070b10 50%, #05070a 100%);
+  color: white;
+}
+
+body {
+  margin: 0;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+*::selection {
+  background: rgba(0, 200, 240, 0.2);
+  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(0, 200, 240, 0.28), rgba(255, 255, 255, 0.08));
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(0, 200, 240, 0.45), rgba(255, 255, 255, 0.12));
+  background-clip: padding-box;
+}
+
+@layer components {
+  .glass-panel {
+    @apply rounded-3xl border border-white/10 bg-white/[0.035] backdrop-blur-xl shadow-glow;
+  }
+
+  .glass-panel-strong {
+    @apply rounded-3xl border border-white/10 bg-white/[0.05] backdrop-blur-2xl shadow-glow;
+  }
+
+  .glass-input {
+    @apply w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition-all duration-300 focus:border-cyan-400/40 focus:bg-white/[0.05] focus:shadow-glow-cyan;
+  }
+
+  .glass-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-400/20 bg-gradient-to-b from-cyan-400/10 to-white/[0.02] px-4 py-3 text-sm font-medium text-white transition-all duration-300 hover:border-cyan-400/35 hover:from-cyan-400/15 hover:to-white/[0.04] hover:shadow-glow-cyan active:scale-[0.98];
+  }
+
+  .glass-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/[0.05] hover:border-white/15;
+  }
+
+  .surface-highlight {
+    @apply before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:bg-gradient-to-b before:from-white/[0.06] before:to-transparent before:content-[''];
+  }
+
+  .text-gradient-cyan {
+    @apply bg-gradient-to-r from-white via-cyan-300 to-cyan-400 bg-clip-text text-transparent;
+  }
 }
