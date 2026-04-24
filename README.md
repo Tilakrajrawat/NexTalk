@@ -1,23 +1,3 @@
-Yes — **this README needs fixing before push**.
-Right now the **Markdown formatting is broken** in multiple places.
-
-## Main problems:
-
-* project structure code block is **not closed**
-* many headings are missing `##`
-* env blocks are not fenced
-* commands are not fenced
-* one GitHub link has an extra `]`
-* license/support headings are not formatted
-* screenshot paths are okay, but use `docs/...` instead of `./docs/...` for cleaner GitHub rendering
-
----
-
-# Best move:
-
-## Replace your entire `README.md` with this corrected final version
-
-````md id="1x2a7m"
 # 💬 NexTalk — Premium Real-Time Chat Platform
 
 NexTalk is a **full-stack real-time messaging platform** built with a modern React + Node.js architecture and a premium dark glass UI.
