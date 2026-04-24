@@ -436,10 +436,6 @@ add .env to .gitignore
 rotate any exposed credentials if they were ever committed
 
 ## 👨‍💻 Author
-
-**Tilak Raj Rawat**  
-GitHub: [## 👨‍💻 Author
-
 **Tilak Raj Rawat**  
 GitHub: [github.com/Tilakrajrawat](https://github.com/Tilakrajrawat)]
 LinkedIn: [linkedin.com/in/tilakrajrawat142](https://linkedin.com/in/tilakrajrawat142)
